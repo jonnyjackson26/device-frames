@@ -63,6 +63,23 @@ Dependencies:
 - `numpy` - Array operations
 - `scipy` - Connected-component labeling
 
+## Visual Examples
+
+### Original Frame (Pixel 8 - Hazel)
+![Original device frame with transparent background](original_frame.png)
+
+### Screen Extracted
+The script can extract just the screen content using the template coordinates:
+
+![Extracted screen region](screen_extracted.png)
+
+### Frame with Mask Applied
+The mask can be used to create clean composites with the frame border:
+
+![Frame with screen mask applied](frame_with_mask.png)
+
+The mask ensures precise screen boundaries, handling rounded corners and notches perfectly.
+
 ## Usage
 
 Process all device frames:
@@ -71,33 +88,18 @@ Process all device frames:
 python process_frames.py
 ```
 
-Output structure:
+### Output structure:
+
+Each processed frame generates 3 files in `output/`:
+
 ```
 output/
-├── android-phone/
-│   └── Pixel 8/
-│       └── Hazel/
-│           ├── frame.png      (original with transparent background)
-│           ├── mask.png       (binary screen mask)
-│           └── template.json  (metadata & coordinates)
-├── android-tablet/
-│   └── Pixel Tablet/
-│       └── Hazel/
-│           ├── frame.png
-│           ├── mask.png
-│           └── template.json
-├── iOS/
-│   └── 16/
-│       └── Black/
-│           ├── frame.png
-│           ├── mask.png
-│           └── template.json
-└── iPad/
-    └── iPad mini 8.3 A17 Pro/
-        └── Starlight/
-            ├── frame.png
-            ├── mask.png
-            └── template.json
+├── {device-type}/
+│   └── {device-model}/
+│       └── {color-variant}/
+│           ├── frame.png         (original frame, RGBA, transparent background)
+│           ├── mask.png          (binary screen mask, grayscale)
+│           └── template.json     (metadata: coordinates, sizes)
 ```
 
 ## Output Format
@@ -143,3 +145,7 @@ Binary mask where:
 - Android tablets (Pixel Tablet, Samsung Galaxy Tab S11 Ultra)
 - iOS phones (iPhone 13 mini, 14 Pro Max, 15 Pro Max, 16, 16 Plus, 16 Pro, 16 Pro Max, 17 Pro, 17 Pro Max, Air)
 - iPads (Air, mini, Pro 11", Pro 13")
+
+# Contributing:
+Please add more device frames!!
+
