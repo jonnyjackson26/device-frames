@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 
 
+import argparse
 import json
 from pathlib import Path
+from typing import List, Optional, Tuple
 from PIL import Image, ImageFilter
 
 
-def apply_frame_to_screenshot(screenshot_path, template_path, output_path):
+def apply_frame_to_screenshot(screenshot_path: Path, template_path: Path, output_path: Path):
     """
     Apply device frame to screenshot.
     
@@ -69,27 +71,54 @@ def apply_frame_to_screenshot(screenshot_path, template_path, output_path):
     return output_path
 
 
+def find_template(output_root: Path, device_type: str, device_variation: str) -> Tuple[Optional[Path], List[Path]]:
+    pattern = f"{device_type}/{device_variation}/template.json"
+    matches = list(output_root.rglob(pattern))
+    if not matches:
+        return None, []
+    return matches[0], matches
+
+
+def sanitize_filename(text: str) -> str:
+    return text.replace(" ", "-")
+
+
 if __name__ == "__main__":
-    # Define paths
-    screenshot_path = Path("/workspaces/device-frames/test-screenshots/pixel-9-pro-xl.png")
-    template_path = Path("/workspaces/device-frames/output/android-phone/Pixel 9 Pro XL/Rose Quartz/template.json")
-    output_path = Path("/workspaces/device-frames/mockup/pixel-9-pro-xl-rose-quartz-framed.png")
-    
-    # Check if screenshot exists
+    parser = argparse.ArgumentParser(description="Apply a device frame to a screenshot using generated templates.")
+    parser.add_argument("--screenshot", required=True, type=Path, help="Path to the screenshot image")
+    parser.add_argument("--device-type", required=True, help="Device type directory name (e.g. '16 Pro Max')")
+    parser.add_argument("--device-variation", required=True, help="Device variation directory name (e.g. 'Blue Titanium')")
+    parser.add_argument("--output", type=Path, help="Output image path (default: mockup/<device>-<variation>-framed.png)")
+    parser.add_argument("--output-dir", type=Path, default=Path(__file__).resolve().parent, help="Directory for output if --output is not provided")
+    parser.add_argument("--output-root", type=Path, default=Path(__file__).resolve().parent.parent / "output", help="Root output directory containing device templates")
+    args = parser.parse_args()
+
+    screenshot_path = args.screenshot.expanduser().resolve()
     if not screenshot_path.exists():
         print(f"Error: Screenshot not found at {screenshot_path}")
         exit(1)
-    
-    # Check if template exists
-    if not template_path.exists():
-        print(f"Error: Template not found at {template_path}")
-        print("Please run process_frames.py first to generate device templates.")
+
+    template_path, candidates = find_template(args.output_root, args.device_type, args.device_variation)
+    if not template_path:
+        print(f"Error: template.json not found for device '{args.device_type}' variation '{args.device_variation}' under {args.output_root}")
         exit(1)
-    
-    # Apply frame
-    print("Applying Pixel 9 Pro XL Rose Quartz frame...")
+    if len(candidates) > 1:
+        print("Warning: multiple templates found; using the first match:")
+        for p in candidates:
+            print(f" - {p}")
+
+    if args.output:
+        output_path = args.output.expanduser().resolve()
+    else:
+        filename = f"{sanitize_filename(args.device_type)}-{sanitize_filename(args.device_variation)}-framed.png"
+        output_dir = args.output_dir.expanduser().resolve()
+        output_dir.mkdir(parents=True, exist_ok=True)
+        output_path = output_dir / filename
+
+    print("Applying frame...")
     print(f"Screenshot: {screenshot_path}")
-    print(f"Template: {template_path}")
+    print(f"Template:   {template_path}")
+    print(f"Output:     {output_path}")
     print()
-    
+
     apply_frame_to_screenshot(screenshot_path, template_path, output_path)

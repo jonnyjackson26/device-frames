@@ -146,6 +146,63 @@ Binary mask where:
 - iOS phones (iPhone 13 mini, 14 Pro Max, 15 Pro Max, 16, 16 Plus, 16 Pro, 16 Pro Max, 17 Pro, 17 Pro Max, Air)
 - iPads (Air, mini, Pro 11", Pro 13")
 
+## Apply Device Frames to Screenshots
+
+Use `mockup/apply_frame.py` to composite your screenshots with device frames:
+
+```bash
+python mockup/apply_frame.py \
+  --screenshot path/to/screenshot.png \
+  --device-type "16 Pro Max" \
+  --device-variation "Natural Titanium"
+```
+
+### Options
+
+- `--screenshot` (required): Path to your screenshot image
+- `--device-type` (required): Device model name (e.g., "16 Pro Max", "Pixel 9 Pro XL", "Pixel Tablet")
+- `--device-variation` (required): Color/finish variant (e.g., "Natural Titanium", "Rose Quartz", "Hazel")
+- `--output`: Custom output path (default: `mockup/<device>-<variation>-framed.png`)
+- `--output-dir`: Output directory (default: `mockup/`)
+- `--output-root`: Templates location (default: `output/`)
+
+### Examples
+
+**iPhone 15 Pro Max:**
+```bash
+python mockup/apply_frame.py \
+  --screenshot test-screenshots/iphone-15-pro.jpeg \
+  --device-type "15 Pro Max" \
+  --device-variation "Natural Titanium"
+```
+
+**Pixel Tablet:**
+```bash
+python mockup/apply_frame.py \
+  --screenshot test-screenshots/tablet-screenshot.png \
+  --device-type "Pixel Tablet" \
+  --device-variation "Hazel"
+```
+
+**Custom output location:**
+```bash
+python mockup/apply_frame.py \
+  --screenshot my-app-screenshot.png \
+  --device-type "16 Pro" \
+  --device-variation "Black Titanium" \
+  --output marketing/hero-image.png
+```
+
+### How It Works
+
+1. Loads the device frame and mask from the template
+2. Resizes your screenshot to fit the screen region exactly
+3. Applies the mask to give the screenshot rounded corners/notch cutouts
+4. Composites the masked screenshot behind the device frame
+5. Saves the final image with proper transparency
+
+The mask is slightly dilated to eliminate subpixel gaps at rounded corners and notches.
+
 # Contributing:
-Please add more device frames!!
+Please add more device frames and test-screenshots.
 
