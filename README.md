@@ -283,3 +283,31 @@ Process all device frames:
 ```bash
 python process_frames.py
 ```
+
+---
+
+## Deploy to Fly.io
+
+- Ensure the API runs on port `8000` and starts with `uvicorn`.
+- This repo includes a working `Dockerfile` and `fly.toml`.
+
+### One-time setup
+```bash
+brew install flyctl   # or see https://fly.io/docs/hands-on/install-flyctl/
+fly auth login
+fly apps create device-frames   # or use your desired app name
+```
+
+### Deploy
+```bash
+fly deploy
+```
+
+### Verify
+- Check logs: `fly logs`
+- Open app: `fly open`
+
+### Common issues
+- Error: `To use the fastapi command, please install "fastapi[standard]"` → Fix the container command to use `uvicorn api.main:app --host 0.0.0.0 --port 8000` (already set in `Dockerfile`).
+- Port mismatch: `fly.toml` sets `internal_port = 8000`. Make sure your server binds to `0.0.0.0:8000` (done by default).
+- Large image builds: `.dockerignore` excludes `device-frames-raw`, `tests`, and `docs` to keep images small. The API uses `device-frames-output`, which is included.

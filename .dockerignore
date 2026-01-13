@@ -3,3 +3,12 @@ fly.toml
 __pycache__/
 .envrc
 .venv/
+node_modules/
+tests/
+docs/
+device-frames-raw/
+*.ipynb
+*.DS_Store
+
+# Keep device-frames-output (used by API); ignore marketing/build artifacts
+marketing/
