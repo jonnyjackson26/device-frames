@@ -1,0 +1,225 @@
+# Device Frames - API Documentation
+
+## Overview
+
+Device Frames provides both a Python engine and HTTP API for applying device frames to screenshots. The project has been refactored into a clean, production-ready structure that separates rendering logic from HTTP/CLI concerns.
+
+## Project Structure
+
+```
+device-frames/
+├── engine/                    # Pure rendering logic (no HTTP dependencies)
+│   ├── __init__.py
+│   ├── render.py             # Core rendering function
+│   ├── color.py              # Color parsing utilities
+│   └── templates.py          # Template discovery utilities
+│
+├── api/                       # FastAPI HTTP service
+│   ├── main.py               # FastAPI app instance
+│   └── routes.py             # /render endpoint
+│
+├── device-frames-output/     # Device templates (frame.png, mask.png, template.json)
+├── apply_frame.py            # CLI script (uses engine)
+└── requirements.txt          # Dependencies
+```
+
+## Installation
+
+```bash
+pip install -r requirements.txt
+```
+
+## CLI Usage
+
+```bash
+python apply_frame.py \
+  --screenshot test-screenshots/iphone16plus.png \
+  --device-type "16 Plus" \
+  --device-variation "Teal" \
+  --output marketing/hero-image.png \
+  --background-color "#FF0000"
+```
+
+### CLI Options
+
+- `--screenshot`: Path to screenshot image (required)
+- `--device-type`: Device model name, e.g., "16 Plus", "16 Pro Max" (required)
+- `--device-variation`: Device color/variant, e.g., "Teal", "Blue Titanium" (required)
+- `--output`: Output path (optional, defaults to `<device>-<variation>-framed.png`)
+- `--background-color`: Hex color for background, e.g., "#RRGGBB" or "#RRGGBBAA" (optional, default: transparent)
+
+## API Usage
+
+### Starting the Server
+
+```bash
+uvicorn api.main:app --host 0.0.0.0 --port 8000
+```
+
+The API will be available at `http://localhost:8000`
+
+Interactive API documentation (Swagger UI): `http://localhost:8000/docs`
+
+### API Endpoint
+
+**POST /render**
+
+Apply a device frame to an uploaded screenshot.
+
+#### Request
+
+Content-Type: `multipart/form-data`
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `file` | File | Yes | Screenshot image (PNG, JPEG, or WebP) |
+| `device_type` | String | Yes | Device model name (e.g., "16 Plus") |
+| `device_variation` | String | Yes | Device color/variant (e.g., "Teal") |
+| `background_color` | String | No | Hex color for background (e.g., "#RRGGBB" or "#RRGGBBAA"). Default: transparent |
+
+#### Response
+
+- **Success (200)**: Returns the framed image as a PNG file
+- **Bad Request (400)**: Invalid color format or unsupported file type
+- **Not Found (404)**: Device template not found
+
+#### Example with curl
+
+```bash
+# Basic usage
+curl -X POST http://localhost:8000/render \
+  -F "file=@screenshot.png" \
+  -F "device_type=16 Plus" \
+  -F "device_variation=Teal" \
+  -o output.png
+
+# With custom background color
+curl -X POST http://localhost:8000/render \
+  -F "file=@screenshot.png" \
+  -F "device_type=16 Pro Max" \
+  -F "device_variation=Black Titanium" \
+  -F "background_color=#FF0000" \
+  -o output.png
+```
+
+#### Example with Python requests
+
+```python
+import requests
+
+url = "http://localhost:8000/render"
+
+with open("screenshot.png", "rb") as f:
+    files = {"file": f}
+    data = {
+        "device_type": "16 Plus",
+        "device_variation": "Teal",
+        "background_color": "#FF0000"  # Optional
+    }
+    
+    response = requests.post(url, files=files, data=data)
+    
+    if response.status_code == 200:
+        with open("output.png", "wb") as out:
+            out.write(response.content)
+    else:
+        print(f"Error: {response.status_code} - {response.json()}")
+```
+
+#### Example with JavaScript (fetch)
+
+```javascript
+const formData = new FormData();
+formData.append('file', fileInput.files[0]);
+formData.append('device_type', '16 Plus');
+formData.append('device_variation', 'Teal');
+formData.append('background_color', '#FF0000'); // Optional
+
+fetch('http://localhost:8000/render', {
+  method: 'POST',
+  body: formData
+})
+  .then(response => response.blob())
+  .then(blob => {
+    const url = URL.createObjectURL(blob);
+    // Display or download the image
+  });
+```
+
+## Engine Usage (Programmatic)
+
+The engine can be used directly in Python code:
+
+```python
+from pathlib import Path
+from engine import apply_frame_to_screenshot, parse_color, find_template
+
+# Find device template
+output_root = Path("device-frames-output")
+template_path, _ = find_template(output_root, "16 Plus", "Teal")
+
+if template_path:
+    # Apply frame
+    result = apply_frame_to_screenshot(
+        screenshot_path=Path("screenshot.png"),
+        template_path=template_path,
+        output_path=Path("output.png"),
+        background_color=parse_color("#FF0000")  # Optional, default: (0,0,0,0)
+    )
+    print(f"Saved to: {result}")
+```
+
+## Supported Devices
+
+The API supports any device template in the `device-frames-output/` directory:
+
+- **iOS**: iPhone 13 mini, 14 Pro Max, 15 Pro Max, 16, 16 Plus, 16 Pro, 16 Pro Max, 17 Pro, 17 Pro Max, Air
+- **iPad**: iPad Air (various models), iPad Pro (various models), iPad mini
+- **Android Phones**: Pixel 8, Pixel 8 Pro, Pixel 9 Pro, Pixel 9 Pro XL
+- **Android Tablets**: Pixel Tablet, Samsung Galaxy Tab S11 Ultra
+
+Use the exact folder names for `device_type` and `device_variation`.
+
+## Design Principles
+
+### Engine Module
+- **Pure functions**: No side effects, deterministic behavior
+- **No HTTP dependencies**: Can be used in any Python context
+- **No CLI parsing**: Accepts only Python data types
+- **Minimal logging**: No print statements, returns Paths
+
+### API Module
+- **Clean separation**: HTTP concerns only (validation, file handling, responses)
+- **Multipart form-data**: Efficient binary file streaming
+- **Proper error handling**: HTTP status codes for all error cases
+- **Temporary files**: No long-term storage, cleanup after response
+
+## Why This Architecture?
+
+This structure enables future:
+- ✅ Web applications
+- ✅ Public APIs
+- ✅ Python SDKs
+- ✅ NPM/JavaScript SDKs
+- ✅ React components
+- ✅ Mobile apps
+- ✅ Batch processing
+- ✅ Video rendering
+
+All powered by the same rendering engine.
+
+## Limitations
+
+- **No URL support**: The API does not accept image URLs (SSRF prevention, latency control)
+- **No asset serving**: Frame/mask assets are not exposed via HTTP
+- **No authentication**: Add your own auth layer if needed
+- **Single image only**: No batch processing yet (coming soon)
+
+## Contributing
+
+When adding new features:
+- Rendering logic → `engine/`
+- HTTP endpoints → `api/`
+- CLI options → `apply_frame.py`
+
+Keep the separation clean!

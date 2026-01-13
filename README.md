@@ -1,9 +1,84 @@
 # device-frames
 Render a screenshot within a device frame. Create mockups easily.
 
-This repository is made of two main parts:
-1. `process_frames.py`
-2. `apply_frame.py`
+This repository provides three main ways to work with device frames:
+1. **CLI Script**: `apply_frame.py` - Command-line tool
+2. **HTTP API**: FastAPI service for remote/web usage
+3. **Python Engine**: Reusable library for custom integrations
+
+---
+
+## 🚀 Quick Start
+
+### CLI Usage
+```bash
+python apply_frame.py \
+  --screenshot test-screenshots/iphone16plus.png \
+  --device-type "16 Plus" \
+  --device-variation "Teal" \
+  --output marketing/hero-image.png
+```
+
+### API Usage
+```bash
+# Start the server
+./start_api.sh
+# or
+uvicorn api.main:app --host 0.0.0.0 --port 8000
+
+# Make a request
+curl -X POST http://localhost:8000/render \
+  -F "file=@screenshot.png" \
+  -F "device_type=16 Plus" \
+  -F "device_variation=Teal" \
+  -o framed.png
+```
+
+**Interactive API docs**: http://localhost:8000/docs
+
+📖 **Full API documentation**: See [docs/API.md](docs/API.md)
+
+### Python Engine
+```python
+from pathlib import Path
+from engine import apply_frame_to_screenshot, find_template
+
+# Find device template
+template_path, _ = find_template(
+    Path("device-frames-output"), 
+    "16 Plus", 
+    "Teal"
+)
+
+# Apply frame
+apply_frame_to_screenshot(
+    screenshot_path=Path("screenshot.png"),
+    template_path=template_path,
+    output_path=Path("output.png")
+)
+```
+
+---
+
+# Project Structure
+
+```
+device-frames/
+├── engine/              # Pure rendering logic (no HTTP/CLI)
+│   ├── render.py       # Core frame application
+│   ├── color.py        # Color parsing
+│   └── templates.py    # Template discovery
+│
+├── api/                # FastAPI HTTP service
+│   ├── main.py        # App instance
+│   └── routes.py      # /render endpoint
+│
+├── apply_frame.py      # CLI script
+├── device-frames-output/  # Processed templates
+└── device-frames-raw/     # Original frame images
+```
+
+---
 
 # Processing frames
 ![Frame process to seperate Mask and Frame](docs/process_frames_graphic.png)  

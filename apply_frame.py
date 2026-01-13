@@ -1,115 +1,10 @@
 #!/usr/bin/env python3
 
-
 import argparse
 import json
 from pathlib import Path
-from typing import List, Optional, Tuple, Union
-from PIL import Image, ImageFilter
 
-
-def parse_color(color_str: str) -> Union[Tuple[int, int, int, int], Tuple[int, int, int]]:
-    """
-    Parse a color string to RGBA or RGB tuple.
-    
-    Supports:
-    - Empty string or 'transparent': RGBA with alpha=0
-    - Hex colors: '#RRGGBB' or '#RRGGBBAA'
-    """
-    color_str = color_str.strip()
-    
-    if not color_str or color_str.lower() == 'transparent':
-        return (0, 0, 0, 0)
-    
-    if color_str.startswith('#'):
-        color_str = color_str.lstrip('#')
-        if len(color_str) == 6:
-            r, g, b = tuple(int(color_str[i:i+2], 16) for i in (0, 2, 4))
-            return (r, g, b)
-        elif len(color_str) == 8:
-            r, g, b, a = tuple(int(color_str[i:i+2], 16) for i in (0, 2, 4, 6))
-            return (r, g, b, a)
-    
-    raise ValueError(f"Invalid color: {color_str}. Use hex (#RRGGBB or #RRGGBBAA) or empty/transparent")
-
-
-def apply_frame_to_screenshot(screenshot_path: Path, template_path: Path, output_path: Path, background_color: Union[Tuple[int, int, int, int], Tuple[int, int, int]] = (0, 0, 0, 0)):
-    """
-    Apply device frame to screenshot.
-    
-    Args:
-        screenshot_path: Path to the screenshot image
-        template_path: Path to the device template.json
-        output_path: Path to save the framed screenshot
-        background_color: Background color as RGBA or RGB tuple
-    """
-    # Load template
-    with open(template_path) as f:
-        template = json.load(f)
-    
-    frame_dir = template_path.parent
-    
-    # Load images
-    frame = Image.open(frame_dir / template["frame"])
-    mask = Image.open(frame_dir / template["mask"])
-    screenshot = Image.open(screenshot_path)
-    
-    # Get screen bounds
-    screen = template["screen"]
-    
-    print(f"Frame size: {template['frameSize']['width']}x{template['frameSize']['height']}")
-    print(f"Screen region: {screen['width']}x{screen['height']} at ({screen['x']}, {screen['y']})")
-    print(f"Original screenshot: {screenshot.size}")
-    
-    # Resize screenshot to match screen dimensions
-    screenshot_resized = screenshot.resize(
-        (screen["width"], screen["height"]),
-        Image.Resampling.LANCZOS
-    )
-    
-    # Convert screenshot to RGBA for proper alpha blending
-    if screenshot_resized.mode != 'RGBA':
-        screenshot_resized = screenshot_resized.convert('RGBA')
-    
-    print(f"Resized screenshot: {screenshot_resized.size}")
-    
-    # Extract the mask region for the screenshot area
-    mask_region = mask.crop((screen["x"], screen["y"], 
-                              screen["x"] + screen["width"], 
-                              screen["y"] + screen["height"]))
-
-    # Slightly dilate the mask to avoid subpixel gaps at rounded corners / notches
-    mask_region = mask_region.filter(ImageFilter.MaxFilter(3))
-    
-    # Apply the mask to the screenshot as its alpha channel (cuts screenshot to frame shape)
-    screenshot_resized.putalpha(mask_region)
-    
-    # Create composite: canvas with background color, paste masked screenshot, paste frame on top
-    composite = Image.new('RGBA', (template['frameSize']['width'], template['frameSize']['height']), background_color)
-    composite.paste(screenshot_resized, (screen["x"], screen["y"]), screenshot_resized)
-    composite.paste(frame, (0, 0), frame)
-    
-    # Create output directory if it doesn't exist
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Save result
-    composite.save(output_path)
-    print(f"\nFramed screenshot saved to: {output_path}")
-    print(f"Output size: {composite.size}")
-    
-    return output_path
-
-
-def find_template(output_root: Path, device_type: str, device_variation: str) -> Tuple[Optional[Path], List[Path]]:
-    pattern = f"{device_type}/{device_variation}/template.json"
-    matches = list(output_root.rglob(pattern))
-    if not matches:
-        return None, []
-    return matches[0], matches
-
-
-def sanitize_filename(text: str) -> str:
-    return text.replace(" ", "-")
+from engine import apply_frame_to_screenshot, parse_color, find_template, sanitize_filename
 
 
 if __name__ == "__main__":
@@ -158,4 +53,7 @@ if __name__ == "__main__":
     print(f"Background: {args.background_color}")
     print()
 
-    apply_frame_to_screenshot(screenshot_path, template_path, output_path, background_color)
+    result_path = apply_frame_to_screenshot(screenshot_path, template_path, output_path, background_color)
+    
+    print(f"\nFramed screenshot saved to: {result_path}")
+
