@@ -1,14 +1,9 @@
 #!/usr/bin/env python3
-"""
-Apply Pixel 9 Pro XL Rose Quartz frame to a screenshot.
 
-This script reads a screenshot and composites it with the 
-Pixel 9 Pro XL Rose Quartz device frame.
-"""
 
 import json
 from pathlib import Path
-from PIL import Image
+from PIL import Image, ImageFilter
 
 
 def apply_frame_to_screenshot(screenshot_path, template_path, output_path):
@@ -44,20 +39,26 @@ def apply_frame_to_screenshot(screenshot_path, template_path, output_path):
         Image.Resampling.LANCZOS
     )
     
+    # Convert screenshot to RGBA for proper alpha blending
+    if screenshot_resized.mode != 'RGBA':
+        screenshot_resized = screenshot_resized.convert('RGBA')
+    
     print(f"Resized screenshot: {screenshot_resized.size}")
     
-    # Create composite with proper layering and masking
-    # 1. Create a transparent canvas the size of the frame
+    # Extract the mask region for the screenshot area
+    mask_region = mask.crop((screen["x"], screen["y"], 
+                              screen["x"] + screen["width"], 
+                              screen["y"] + screen["height"]))
+
+    # Slightly dilate the mask to avoid subpixel gaps at rounded corners / notches
+    mask_region = mask_region.filter(ImageFilter.MaxFilter(3))
+    
+    # Apply the mask to the screenshot as its alpha channel (cuts screenshot to frame shape)
+    screenshot_resized.putalpha(mask_region)
+    
+    # Create composite: transparent canvas, paste masked screenshot, paste frame on top
     composite = Image.new('RGBA', (template['frameSize']['width'], template['frameSize']['height']), (0, 0, 0, 0))
-    
-    # 2. Paste the screenshot at the screen position, using mask to control visibility
-    # This ensures screenshot only shows in the screen area defined by the mask
-    composite.paste(screenshot_resized, (screen["x"], screen["y"]))
-    
-    # 3. Apply the mask to the entire composite (mask defines screen area)
-    composite.putalpha(mask)
-    
-    # 4. Paste the frame on top (frame has transparency in screen area)
+    composite.paste(screenshot_resized, (screen["x"], screen["y"]), screenshot_resized)
     composite.paste(frame, (0, 0), frame)
     
     # Save result
