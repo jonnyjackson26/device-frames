@@ -138,10 +138,10 @@ python apply_frame.py \
 **Custom output location:**
 ```bash
 python apply_frame.py \
-  --screenshot my-app-screenshot.png \
-  --device-type "16 Pro" \
-  --device-variation "Black Titanium" \
-  --output marketing/hero-image.png
+  --screenshot test-screenshots/iphone16plus.png \
+  --device-type "16 Plus" \
+  --device-variation "Teal" \
+  --output test-mockups/image.png
 ```
 
 ### How It Works

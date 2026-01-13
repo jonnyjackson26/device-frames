@@ -63,6 +63,9 @@ def apply_frame_to_screenshot(screenshot_path: Path, template_path: Path, output
     composite.paste(screenshot_resized, (screen["x"], screen["y"]), screenshot_resized)
     composite.paste(frame, (0, 0), frame)
     
+    # Create output directory if it doesn't exist
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
     # Save result
     composite.save(output_path)
     print(f"\nFramed screenshot saved to: {output_path}")
@@ -90,7 +93,7 @@ if __name__ == "__main__":
     parser.add_argument("--device-variation", required=True, help="Device variation directory name (e.g. 'Blue Titanium')")
     parser.add_argument("--output", type=Path, help="Output image path (default: mockup/<device>-<variation>-framed.png)")
     parser.add_argument("--output-dir", type=Path, default=Path(__file__).resolve().parent, help="Directory for output if --output is not provided")
-    parser.add_argument("--output-root", type=Path, default=Path(__file__).resolve().parent.parent / "device-frames-output", help="Root output directory containing device templates")
+    parser.add_argument("--output-root", type=Path, default=Path(__file__).resolve().parent / "device-frames-output", help="Root output directory containing device templates")
     args = parser.parse_args()
 
     screenshot_path = args.screenshot.expanduser().resolve()
