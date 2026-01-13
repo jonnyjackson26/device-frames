@@ -90,7 +90,7 @@ if __name__ == "__main__":
     parser.add_argument("--device-variation", required=True, help="Device variation directory name (e.g. 'Blue Titanium')")
     parser.add_argument("--output", type=Path, help="Output image path (default: mockup/<device>-<variation>-framed.png)")
     parser.add_argument("--output-dir", type=Path, default=Path(__file__).resolve().parent, help="Directory for output if --output is not provided")
-    parser.add_argument("--output-root", type=Path, default=Path(__file__).resolve().parent.parent / "output", help="Root output directory containing device templates")
+    parser.add_argument("--output-root", type=Path, default=Path(__file__).resolve().parent.parent / "device-frames-output", help="Root output directory containing device templates")
     args = parser.parse_args()
 
     screenshot_path = args.screenshot.expanduser().resolve()

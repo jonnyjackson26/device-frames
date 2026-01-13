@@ -378,8 +378,8 @@ if __name__ == "__main__":
     
     # Define paths
     workspace_root = Path(__file__).parent
-    frames_input = workspace_root / "device-frames"
-    frames_output = workspace_root / "output"
+    frames_input = workspace_root / "device-frames-raw"
+    frames_output = workspace_root / "device-frames-output"
     
     if not frames_input.exists():
         logger.error(f"Input directory not found: {frames_input}")

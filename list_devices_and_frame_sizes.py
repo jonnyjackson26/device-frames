@@ -10,7 +10,7 @@ from pathlib import Path
 def list_devices():
     """List all device types/variations and their frame sizes."""
     
-    output_root = Path("output")
+    output_root = Path("device-frames-output")
     
     if not output_root.exists():
         print("⚠️  Output directory not found!")

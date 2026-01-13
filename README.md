@@ -1,98 +1,55 @@
 # device-frames
+Render a screenshot within a device frame. Create mockups easily.
 
-Automated extraction of screen regions from device frame mockups. Processes PNG device frames to generate screen masks, bounding boxes, and reusable templates.
+This repository is made of two main parts:
+1. `process_frames.py`
+2. `apply_frame.py`
 
-## Features
+# Processing frames
+![Frame process to seperate Mask and Frame](docs/process_frames_graphic.png)  
+Each frame is originally a png, stored in `/device-frames-raw`. In order to put a screenshot within the frame though, we need a mask. `process_frames.py` creates masks and a template.json with important information for each frame, and stores them within `/device-frames-output`.
 
-- **Alpha-based detection**: Uses transparency information to identify screen regions
-- **Contiguous region analysis**: Finds the largest transparent region enclosed by opaque pixels
-- **Smart aspect ratio filtering**: Handles both portrait phones (1.7-2.4) and tablets (1.3-2.5)
-- **Automatic validation**: Sanity checks ensure mask quality before output
-- **Batch processing**: Recursively processes entire directory trees
-- **Three-artifact output**: Each frame generates `frame.png`, `mask.png`, and `template.json`
+**Algorithm Overview**
 
-## Algorithm Overview
-
-### Step 1: Normalize Image
+#### Step 1: Normalize Image
 - Load PNG and convert to RGBA
 - Extract alpha channel (0-255 range)
 
-### Step 2: Classify Pixels by Opacity
+#### Step 2: Classify Pixels by Opacity
 - **Transparent** (α ≤ 10): Screen interior
 - **Solid** (α ≥ 245): Device frame
 - **Edge/anti-aliased**: Everything in between
 
-### Step 3: Find Contiguous Transparent Regions
+#### Step 3: Find Contiguous Transparent Regions
 - Connected-component labeling on transparency mask
 - Identify all transparent regions with their areas
 - Reject regions touching image borders (background)
 - Reject tiny regions (holes, speaker grills, < 5000 pixels)
 
-### Step 4: Select Screen Candidate
+#### Step 4: Select Screen Candidate
 Chooses the region with:
 - Largest area
 - Aspect ratio within 1.3-2.5 range (phones & tablets)
 - Fully enclosed by opaque pixels
 
-### Step 5-6: Extract Bounds & Contour
+#### Step 5-6: Extract Bounds & Contour
 - Calculate minX, minY, maxX, maxY of selected region
 - Generate bounding box
 - Extract precise screen contour using edge detection
 
-### Step 7: Generate Screen Mask
+#### Step 7: Generate Screen Mask
 - Create blank image (frame size)
 - Fill detected contour with white (255)
 - Fill background with black (0)
 - Feather inward by ~1px to avoid edge bleed
 
-### Step 8: Validate Automatically
-Sanity checks before output:
-- Mask coverage between 50%-90% of frame area
-- Mask doesn't touch image edges
-- Bounding box fully encloses mask
-- Non-empty mask
-
-## Installation
-
-```bash
-pip install -r requirements.txt
-```
-
-Dependencies:
-- `Pillow` - Image processing
-- `numpy` - Array operations
-- `scipy` - Connected-component labeling
-
-## Visual Examples
-
-### Original Frame (Pixel 8 - Hazel)
-
-### Screen Extracted
-The script can extract just the screen content using the template coordinates:
-
-![Extracted screen region](docs/screen_extracted.png)
-
-### Frame with Mask Applied
-The mask can be used to create clean composites with the frame border:
-
-![Frame with screen mask applied](docs/frame_with_mask.png)
-
-The mask ensures precise screen boundaries, handling rounded corners and notches perfectly.
-
-## Usage
-
-Process all device frames:
-
-```bash
-python process_frames.py
-```
 
 ### Output structure:
 
-Each processed frame generates 3 files in `output/`:
+Each processed frame generates 3 files in `device-frames-output/`:
 
 ```
-output/
+device-frames-output/
 ├── {device-type}/
 │   └── {device-model}/
 │       └── {color-variant}/
@@ -101,11 +58,9 @@ output/
 │           └── template.json     (metadata: coordinates, sizes)
 ```
 
-## Output Format
+### Output Format
 
-### `template.json`
-Metadata for each device frame:
-
+**template.json** - Metadata for each device frame:  
 ```json
 {
   "frame": "frame.png",
@@ -130,13 +85,44 @@ Metadata for each device frame:
 - `screen.width, height`: Screen dimensions
 - `frameSize`: Full frame dimensions
 
-### `frame.png`
+#### `frame.png`
 Original device frame (copy) with transparent background
 
-### `mask.png`
+#### `mask.png`
 Binary mask where:
 - **White (255)**: Screen region
 - **Black (0)**: Everything else
+
+
+
+---
+
+
+# Applying frames
+![Applying frame example](docs/apply_frame_graphic.png)
+
+
+
+
+
+---
+
+## Installation
+
+```bash
+pip install -r requirements.txt
+```
+
+Process all device frames:  
+```bash
+python process_frames.py
+```
+
+
+
+
+
+
 
 
 ### Devices:
@@ -237,3 +223,16 @@ The mask is slightly dilated to eliminate subpixel gaps at rounded corners and n
 # Contributing:
 Please add more device frames and test-screenshots.
 
+
+
+
+# How it works
+
+## Features
+
+- **Alpha-based detection**: Uses transparency information to identify screen regions
+- **Contiguous region analysis**: Finds the largest transparent region enclosed by opaque pixels
+- **Smart aspect ratio filtering**: Handles both portrait phones (1.7-2.4) and tablets (1.3-2.5)
+- **Automatic validation**: Sanity checks ensure mask quality before output
+- **Batch processing**: Recursively processes entire directory trees
+- **Three-artifact output**: Each frame generates `frame.png`, `mask.png`, and `template.json`
