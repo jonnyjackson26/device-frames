@@ -102,7 +102,7 @@ Binary mask where:
 ![Applying frame example](docs/apply_frame_graphic.png)
 
 ```bash
-python mockup/apply_frame.py \
+python apply_frame.py \
   --screenshot path/to/screenshot.png \
   --device-type "16 Pro Max" \
   --device-variation "Natural Titanium"
@@ -121,7 +121,7 @@ python mockup/apply_frame.py \
 
 **iPhone 15 Pro Max:**
 ```bash
-python mockup/apply_frame.py \
+python apply_frame.py \
   --screenshot test-screenshots/iphone-15-pro.jpeg \
   --device-type "15 Pro Max" \
   --device-variation "Natural Titanium"
@@ -129,7 +129,7 @@ python mockup/apply_frame.py \
 
 **Pixel Tablet:**
 ```bash
-python mockup/apply_frame.py \
+python apply_frame.py \
   --screenshot test-screenshots/tablet-screenshot.png \
   --device-type "Pixel Tablet" \
   --device-variation "Hazel"
@@ -137,7 +137,7 @@ python mockup/apply_frame.py \
 
 **Custom output location:**
 ```bash
-python mockup/apply_frame.py \
+python apply_frame.py \
   --screenshot my-app-screenshot.png \
   --device-type "16 Pro" \
   --device-variation "Black Titanium" \
