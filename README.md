@@ -66,17 +66,16 @@ Dependencies:
 ## Visual Examples
 
 ### Original Frame (Pixel 8 - Hazel)
-![Original device frame with transparent background](original_frame.png)
 
 ### Screen Extracted
 The script can extract just the screen content using the template coordinates:
 
-![Extracted screen region](screen_extracted.png)
+![Extracted screen region](docs/screen_extracted.png)
 
 ### Frame with Mask Applied
 The mask can be used to create clean composites with the frame border:
 
-![Frame with screen mask applied](frame_with_mask.png)
+![Frame with screen mask applied](docs/frame_with_mask.png)
 
 The mask ensures precise screen boundaries, handling rounded corners and notches perfectly.
 
@@ -145,6 +144,38 @@ Binary mask where:
 - Android tablets (Pixel Tablet, Samsung Galaxy Tab S11 Ultra)
 - iOS phones (iPhone 13 mini, 14 Pro Max, 15 Pro Max, 16, 16 Plus, 16 Pro, 16 Pro Max, 17 Pro, 17 Pro Max, Air)
 - iPads (Air, mini, Pro 11", Pro 13")
+
+## List All Devices and Frame Sizes
+
+View all available devices with their frame dimensions:
+
+```bash
+python list_devices_and_frame_sizes.py
+```
+
+This displays all processed devices grouped by category (Android phone, Android tablet, iOS, iPad) with their frame sizes:
+
+```
+Found 110 devices:
+
+============================================================
+ANDROID-PHONE
+============================================================
+Pixel 8 - Hazel: 1511x2896px
+Pixel 9 Pro XL - Rose Quartz: 1684x3272px
+...
+
+============================================================
+IOS
+============================================================
+16 Pro Max - Natural Titanium: 1490x2996px
+...
+```
+
+Use this to:
+- Find exact device model names for `--device-type` parameter
+- Find available color variations for `--device-variation` parameter
+- Check frame dimensions for your designs
 
 ## Apply Device Frames to Screenshots
 
