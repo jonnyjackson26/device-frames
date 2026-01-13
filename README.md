@@ -101,72 +101,6 @@ Binary mask where:
 # Applying frames
 ![Applying frame example](docs/apply_frame_graphic.png)
 
-
-
-
-
----
-
-## Installation
-
-```bash
-pip install -r requirements.txt
-```
-
-Process all device frames:  
-```bash
-python process_frames.py
-```
-
-
-
-
-
-
-
-
-### Devices:
-- Android phones (Pixel 8, 8 Pro, 9 Pro, 9 Pro XL)
-- Android tablets (Pixel Tablet, Samsung Galaxy Tab S11 Ultra)
-- iOS phones (iPhone 13 mini, 14 Pro Max, 15 Pro Max, 16, 16 Plus, 16 Pro, 16 Pro Max, 17 Pro, 17 Pro Max, Air)
-- iPads (Air, mini, Pro 11", Pro 13")
-
-## List All Devices and Frame Sizes
-
-View all available devices with their frame dimensions:
-
-```bash
-python list_devices_and_frame_sizes.py
-```
-
-This displays all processed devices grouped by category (Android phone, Android tablet, iOS, iPad) with their frame sizes:
-
-```
-Found 110 devices:
-
-============================================================
-ANDROID-PHONE
-============================================================
-Pixel 8 - Hazel: 1511x2896px
-Pixel 9 Pro XL - Rose Quartz: 1684x3272px
-...
-
-============================================================
-IOS
-============================================================
-16 Pro Max - Natural Titanium: 1490x2996px
-...
-```
-
-Use this to:
-- Find exact device model names for `--device-type` parameter
-- Find available color variations for `--device-variation` parameter
-- Check frame dimensions for your designs
-
-## Apply Device Frames to Screenshots
-
-Use `mockup/apply_frame.py` to composite your screenshots with device frames:
-
 ```bash
 python mockup/apply_frame.py \
   --screenshot path/to/screenshot.png \
@@ -220,19 +154,54 @@ python mockup/apply_frame.py \
 
 The mask is slightly dilated to eliminate subpixel gaps at rounded corners and notches.
 
+---
+
+# Devices:
+- Android phones (Pixel 8, 8 Pro, 9 Pro, 9 Pro XL)
+- Android tablets (Pixel Tablet, Samsung Galaxy Tab S11 Ultra)
+- iOS phones (iPhone 13 mini, 14 Pro Max, 15 Pro Max, 16, 16 Plus, 16 Pro, 16 Pro Max, 17 Pro, 17 Pro Max, Air)
+- iPads (Air, mini, Pro 11", Pro 13")
+
+**View all available devices with their frame dimensions**:
+
+```bash
+python list_devices_and_frame_sizes.py
+```
+
+```
+Found 110 devices:
+
+============================================================
+ANDROID-PHONE
+============================================================
+Pixel 8 - Hazel: 1511x2896px
+Pixel 9 Pro XL - Rose Quartz: 1684x3272px
+...
+
+============================================================
+IOS
+============================================================
+16 Pro Max - Natural Titanium: 1490x2996px
+...
+```
+
+Use this to:
+- Find exact device model names for `--device-type` parameter
+- Find available color variations for `--device-variation` parameter
+- Check frame dimensions for your designs
+
+---
+
+# Installation
+
+```bash
+pip install -r requirements.txt
+```
+
+
 # Contributing:
 Please add more device frames and test-screenshots.
-
-
-
-
-# How it works
-
-## Features
-
-- **Alpha-based detection**: Uses transparency information to identify screen regions
-- **Contiguous region analysis**: Finds the largest transparent region enclosed by opaque pixels
-- **Smart aspect ratio filtering**: Handles both portrait phones (1.7-2.4) and tablets (1.3-2.5)
-- **Automatic validation**: Sanity checks ensure mask quality before output
-- **Batch processing**: Recursively processes entire directory trees
-- **Three-artifact output**: Each frame generates `frame.png`, `mask.png`, and `template.json`
+Process all device frames:  
+```bash
+python process_frames.py
+```
