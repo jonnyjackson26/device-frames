@@ -105,8 +105,10 @@ Binary mask where:
 python apply_frame.py \
   --screenshot path/to/screenshot.png \
   --device-type "16 Pro Max" \
-  --device-variation "Natural Titanium"
+  --device-variation "Natural Titanium" \
+  [--background-color "#RRGGBB"|"#RRGGBBAA"]
 ```
+
 
 ### Options
 
@@ -116,6 +118,7 @@ python apply_frame.py \
 - `--output`: Custom output path (default: `mockup/<device>-<variation>-framed.png`)
 - `--output-dir`: Output directory (default: `mockup/`)
 - `--output-root`: Templates location (default: `output/`)
+- `--background-color`: Background color as hex (`#RRGGBB` or `#RRGGBBAA`). Default is transparent. The color fills the area behind and around the device frame, including any padding from 3D rotation.
 
 ### Examples
 
