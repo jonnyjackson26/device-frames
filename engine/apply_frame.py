@@ -1,5 +1,5 @@
 """
-Core rendering logic for applying device frames to screenshots.
+Core frame application logic for applying device frames to screenshots.
 """
 
 import json

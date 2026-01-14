@@ -18,8 +18,8 @@ ALLOWED_EXTENSIONS = {'.png', '.jpg', '.jpeg', '.webp'}
 ALLOWED_MIME_TYPES = {'image/png', 'image/jpeg', 'image/webp'}
 
 
-@app.post("/render")
-async def render_device_frame(
+@app.post("/apply_frame")
+async def apply_frame(
     file: UploadFile = File(..., description="Screenshot image file (PNG, JPEG, or WebP)"),
     device_type: str = Form(..., description="Device type (e.g., '16 Pro Max')"),
     device_variation: str = Form(..., description="Device variation (e.g., 'Blue Titanium')"),

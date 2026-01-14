@@ -2,21 +2,21 @@
 
 ## Overview
 
-Device Frames provides both a Python engine and HTTP API for applying device frames to screenshots. The project has been refactored into a clean, production-ready structure that separates rendering logic from HTTP/CLI concerns.
+Device Frames provides both a Python engine and HTTP API for applying device frames to screenshots. The project has been refactored into a clean, production-ready structure that separates frame application logic from HTTP/CLI concerns.
 
 ## Project Structure
 
 ```
 device-frames/
-├── engine/                    # Pure rendering logic (no HTTP dependencies)
+├── engine/                    # Pure frame application logic (no HTTP dependencies)
 │   ├── __init__.py
-│   ├── render.py             # Core rendering function
+│   ├── apply_frame.py        # Core frame application function
 │   ├── color.py              # Color parsing utilities
 │   └── templates.py          # Template discovery utilities
 │
 ├── api/                       # FastAPI HTTP service
 │   ├── main.py               # FastAPI app instance
-│   └── routes.py             # /render endpoint
+│   └── routes.py             # /apply_frame endpoint
 │
 ├── device-frames-output/     # Device templates (frame.png, mask.png, template.json)
 ├── apply_frame.py            # CLI script (uses engine)
@@ -62,7 +62,7 @@ Interactive API documentation (Swagger UI): `http://localhost:8000/docs`
 
 ### API Endpoint
 
-**POST /render**
+**POST /apply_frame**
 
 Apply a device frame to an uploaded screenshot.
 
@@ -87,14 +87,14 @@ Content-Type: `multipart/form-data`
 
 ```bash
 # Basic usage
-curl -X POST http://localhost:8000/render \
+curl -X POST http://localhost:8000/apply_frame \
   -F "file=@screenshot.png" \
   -F "device_type=16 Plus" \
   -F "device_variation=Teal" \
   -o output.png
 
 # With custom background color
-curl -X POST http://localhost:8000/render \
+curl -X POST http://localhost:8000/apply_frame \
   -F "file=@screenshot.png" \
   -F "device_type=16 Pro Max" \
   -F "device_variation=Black Titanium" \
@@ -107,7 +107,7 @@ curl -X POST http://localhost:8000/render \
 ```python
 import requests
 
-url = "http://localhost:8000/render"
+url = "http://localhost:8000/apply_frame"
 
 with open("screenshot.png", "rb") as f:
     files = {"file": f}
@@ -135,7 +135,7 @@ formData.append('device_type', '16 Plus');
 formData.append('device_variation', 'Teal');
 formData.append('background_color', '#FF0000'); // Optional
 
-fetch('http://localhost:8000/render', {
+fetch('http://localhost:8000/apply_frame', {
   method: 'POST',
   body: formData
 })
@@ -204,9 +204,9 @@ This structure enables future:
 - ✅ React components
 - ✅ Mobile apps
 - ✅ Batch processing
-- ✅ Video rendering
+- ✅ Video frame application
 
-All powered by the same rendering engine.
+All powered by the same frame application engine.
 
 ## Limitations
 
@@ -218,7 +218,7 @@ All powered by the same rendering engine.
 ## Contributing
 
 When adding new features:
-- Rendering logic → `engine/`
+- Frame application logic → `engine/`
 - HTTP endpoints → `api/`
 - CLI options → `apply_frame.py`
 

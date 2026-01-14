@@ -1,5 +1,5 @@
 # device-frames
-Render a screenshot within a device frame. Create mockups easily.
+Apply a device frame to a screenshot. Create mockups easily.
 
 This repository provides three main ways to work with device frames:
 1. **CLI Script**: `apply_frame.py` - Command-line tool
@@ -27,7 +27,7 @@ python apply_frame.py \
 uvicorn api.main:app --host 0.0.0.0 --port 8000
 
 # Make a request
-curl -X POST http://localhost:8000/render \
+curl -X POST http://localhost:8000/apply_frame \
   -F "file=@screenshot.png" \
   -F "device_type=16 Plus" \
   -F "device_variation=Teal" \
@@ -64,14 +64,14 @@ apply_frame_to_screenshot(
 
 ```
 device-frames/
-├── engine/              # Pure rendering logic (no HTTP/CLI)
-│   ├── render.py       # Core frame application
+├── engine/              # Pure frame application logic (no HTTP/CLI)
+│   ├── apply_frame.py  # Core frame application
 │   ├── color.py        # Color parsing
 │   └── templates.py    # Template discovery
 │
 ├── api/                # FastAPI HTTP service
 │   ├── main.py        # App instance
-│   └── routes.py      # /render endpoint
+│   └── routes.py      # /apply_frame endpoint
 │
 ├── apply_frame.py      # CLI script
 ├── device-frames-output/  # Processed templates

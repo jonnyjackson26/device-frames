@@ -15,7 +15,7 @@
 │   CLI Interface    │        HTTP API Interface              │
 │                    │   ┌─────────────────────────────────┐  │
 │  • argparse        │   │  FastAPI (api/)                 │  │
-│  • print messages  │   │  • POST /render                 │  │
+│  • print messages  │   │  • POST /apply_frame           │  │
 │  • file I/O        │   │  • multipart/form-data          │  │
 │                    │   │  • FileResponse                 │  │
 │                    │   │  • Error handling (400, 404)    │  │
@@ -30,7 +30,7 @@
 │                   Pure Python (engine/)                     │
 │                                                             │
 │  ┌──────────────────────────────────────────────────────┐  │
-│  │  render.py                                           │  │
+│  │  apply_frame.py                                    │  │
 │  │  • apply_frame_to_screenshot()                       │  │
 │  │    - Load template, frame, mask                      │  │
 │  │    - Resize screenshot                               │  │
@@ -83,7 +83,7 @@
 DATA FLOW EXAMPLE:
 
 1. HTTP Request
-   POST /render
+   POST /apply_frame
    ├── file: screenshot.png
    ├── device_type: "16 Plus"
    ├── device_variation: "Teal"
@@ -97,7 +97,7 @@ DATA FLOW EXAMPLE:
    └── Find template → device-frames-output/iOS/16 Plus/Teal/
             │
             ▼
-3. Engine Layer (engine/render.py)
+3. Engine Layer (engine/apply_frame.py)
    ├── Load template.json
    ├── Load frame.png + mask.png
    ├── Resize screenshot to screen bounds

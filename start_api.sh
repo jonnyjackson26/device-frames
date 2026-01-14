@@ -10,7 +10,7 @@ echo "  - Interactive Docs: http://localhost:8000/docs"
 echo "  - OpenAPI Schema: http://localhost:8000/openapi.json"
 echo ""
 echo "Example curl command:"
-echo '  curl -X POST http://localhost:8000/render \'
+echo '  curl -X POST http://localhost:8000/apply_frame \'
 echo '    -F "file=@screenshot.png" \'
 echo '    -F "device_type=16 Plus" \'
 echo '    -F "device_variation=Teal" \'

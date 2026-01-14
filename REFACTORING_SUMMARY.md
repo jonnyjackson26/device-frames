@@ -8,16 +8,16 @@ The device-frames project has been successfully refactored from a monolithic CLI
 
 ```
 device-frames/
-├── engine/                    ✨ NEW: Pure rendering logic
+├── engine/                    ✨ NEW: Pure frame application logic
 │   ├── __init__.py
-│   ├── render.py             # Core frame application function
+│   ├── apply_frame.py        # Core frame application function
 │   ├── color.py              # Color parsing utilities
 │   └── templates.py          # Template discovery utilities
 │
 ├── api/                       ✨ NEW: FastAPI HTTP service
 │   ├── __init__.py
 │   ├── main.py               # FastAPI app instance
-│   └── routes.py             # POST /render endpoint
+│   └── routes.py             # POST /apply_frame endpoint
 │
 ├── docs/
 │   └── API.md                ✨ NEW: Comprehensive API documentation
@@ -31,8 +31,8 @@ device-frames/
 
 ## 🎯 Goals Achieved
 
-### ✅ Preserved Rendering Logic
-- All existing rendering algorithms intact (no changes to core behavior)
+### ✅ Preserved Frame Application Logic
+- All existing frame application algorithms intact (no changes to core behavior)
 - Mask cropping, dilation, alpha blending preserved exactly
 - Frame compositing logic unchanged
 - Background color support maintained
@@ -49,7 +49,7 @@ device-frames/
 
 **API Module (`api/`)**:
 - ✅ FastAPI HTTP service
-- ✅ POST /render endpoint
+- ✅ POST /apply_frame endpoint
 - ✅ multipart/form-data input (file uploads)
 - ✅ FileResponse output (streaming PNG)
 - ✅ Proper error handling (400, 404)
@@ -58,7 +58,7 @@ device-frames/
 
 ### ✅ HTTP API Features
 
-**Endpoint**: `POST /render`
+**Endpoint**: `POST /apply_frame`
 
 **Accepts**:
 - `file`: Image upload (PNG, JPEG, WebP)
@@ -99,10 +99,10 @@ device-frames/
 ### API Testing
 ```bash
 ✅ Started server: uvicorn api.main:app --host 0.0.0.0 --port 8000
-✅ POST /render with valid inputs: 200 OK
-✅ POST /render with invalid device: 404 Not Found
-✅ POST /render with invalid color: 400 Bad Request
-✅ POST /render with background color: 200 OK
+✅ POST /apply_frame with valid inputs: 200 OK
+✅ POST /apply_frame with invalid device: 404 Not Found
+✅ POST /apply_frame with invalid color: 400 Bad Request
+✅ POST /apply_frame with background color: 200 OK
 ```
 
 ### Engine Testing
@@ -146,7 +146,7 @@ python apply_frame.py \
 
 ### 2. HTTP API
 ```bash
-curl -X POST http://localhost:8000/render \
+curl -X POST http://localhost:8000/apply_frame \
   -F "file=@image.png" \
   -F "device_type=16 Pro Max" \
   -F "device_variation=Natural Titanium" \
@@ -193,7 +193,7 @@ This refactor enables:
 - ✅ NPM/JavaScript SDKs
 - ✅ Mobile apps (upload to API)
 - ✅ Batch processing systems
-- ✅ Video frame rendering
+- ✅ Video frame application
 - ✅ CI/CD pipeline integration
 
 ## 📦 Dependencies Added
@@ -252,9 +252,9 @@ from engine import apply_frame_to_screenshot
 ## ✨ Next Steps (Future Enhancements)
 
 Potential future additions (not implemented yet):
-- [ ] Batch processing endpoint (POST /render/batch)
+- [ ] Batch processing endpoint (POST /apply_frame/batch)
 - [ ] WebSocket support for progress updates
-- [ ] Video frame rendering
+- [ ] Video frame application
 - [ ] Async processing with job queue
 - [ ] Authentication middleware
 - [ ] Rate limiting
@@ -264,7 +264,7 @@ Potential future additions (not implemented yet):
 
 ## 📝 Notes
 
-- All existing rendering logic preserved exactly
+- All existing frame application logic preserved exactly
 - No breaking changes to CLI interface
 - Engine can be used in any Python 3.12+ environment
 - API is production-ready but may need auth/rate-limiting for public deployment
