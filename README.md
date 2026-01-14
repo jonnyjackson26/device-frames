@@ -26,7 +26,10 @@ python apply_frame.py \
 # or
 uvicorn api.main:app --host 0.0.0.0 --port 8000
 
-# Make a request
+# List all available devices
+curl http://localhost:8000/list_devices
+
+# Apply a frame to a screenshot
 curl -X POST http://localhost:8000/apply_frame \
   -F "file=@screenshot.png" \
   -F "device_type=16 Plus" \

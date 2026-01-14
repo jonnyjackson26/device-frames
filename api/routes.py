@@ -2,6 +2,7 @@
 API route handlers.
 """
 
+import json
 import tempfile
 from pathlib import Path
 from typing import Optional
@@ -100,3 +101,77 @@ async def apply_frame(
         # Clean up input file
         if tmp_input_path.exists():
             tmp_input_path.unlink()
+
+
+@app.get("/list_devices")
+async def list_devices():
+    """
+    List all available device frames with their metadata.
+    
+    Returns a nested dictionary structure:
+    {
+        "category": {
+            "device_type": {
+                "variation": {
+                    "frame_png": "path/to/frame.png",
+                    "template": {...template.json content...},
+                    "frame_size": {"width": 1234, "height": 5678}
+                }
+            }
+        }
+    }
+    
+    Categories: android-phone, android-tablet, iOS, iPad
+    """
+    output_root = Path(__file__).resolve().parent.parent / "device-frames-output"
+    
+    if not output_root.exists():
+        raise HTTPException(
+            status_code=500,
+            detail="Output directory not found. Run: python process_frames.py"
+        )
+    
+    templates = sorted(output_root.rglob("template.json"))
+    
+    if not templates:
+        raise HTTPException(
+            status_code=500,
+            detail="No templates found. Run: python process_frames.py"
+        )
+    
+    result = {}
+    
+    for template_path in templates:
+        # Read template
+        with open(template_path) as f:
+            template = json.load(f)
+        
+        # Get device path relative to output root
+        device_path = template_path.parent.relative_to(output_root)
+        parts = device_path.parts
+        
+        if len(parts) < 3:
+            continue  # Skip invalid structure
+        
+        category = parts[0]  # e.g., "iOS", "android-phone"
+        device_type = parts[1]  # e.g., "16 Pro Max", "Pixel 8"
+        variation = parts[2]  # e.g., "Black Titanium", "Hazel"
+        
+        # Find frame.png
+        frame_png_path = template_path.parent / "frame.png"
+        frame_png_relative = str(frame_png_path.relative_to(output_root)) if frame_png_path.exists() else None
+        
+        # Build nested structure
+        if category not in result:
+            result[category] = {}
+        
+        if device_type not in result[category]:
+            result[category][device_type] = {}
+        
+        result[category][device_type][variation] = {
+            "frame_png": frame_png_relative,
+            "template": template,
+            "frame_size": template.get("frameSize", {})
+        }
+    
+    return result

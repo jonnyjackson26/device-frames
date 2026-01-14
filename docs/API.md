@@ -60,9 +60,129 @@ The API will be available at `http://localhost:8000`
 
 Interactive API documentation (Swagger UI): `http://localhost:8000/docs`
 
-### API Endpoint
+### API Endpoints
 
-**POST /apply_frame**
+#### GET /list_devices
+
+List all available device frames with their metadata and frame sizes.
+
+##### Request
+
+No parameters required.
+
+##### Response
+
+Returns a nested JSON structure organizing devices by category, device type, and variation:
+
+```json
+{
+  "category": {
+    "device_type": {
+      "variation": {
+        "frame_png": "path/to/frame.png",
+        "template": { /* full template.json content */ },
+        "frame_size": {
+          "width": 1234,
+          "height": 5678
+        }
+      }
+    }
+  }
+}
+```
+
+**Categories:**
+- `iOS` - iPhones
+- `iPad` - iPads (all models)
+- `android-phone` - Android phones (Pixel, etc.)
+- `android-tablet` - Android tablets
+
+**Response Fields:**
+- `frame_png`: Relative path to the device frame PNG file
+- `template`: Complete template.json data including frameSize, screenArea, radius, etc.
+- `frame_size`: Quick access to frame dimensions (width × height in pixels)
+
+##### Example Response
+
+```json
+{
+  "iOS": {
+    "16 Plus": {
+      "Teal": {
+        "frame_png": "iOS/16 Plus/Teal/frame.png",
+        "template": {
+          "frameSize": {"width": 1366, "height": 2830},
+          "screenArea": {"x": 83, "y": 83, "width": 1200, "height": 2664},
+          "radius": 165
+        },
+        "frame_size": {"width": 1366, "height": 2830}
+      }
+    },
+    "16 Pro Max": {
+      "Black Titanium": {
+        "frame_png": "iOS/16 Pro Max/Black Titanium/frame.png",
+        "template": {
+          "frameSize": {"width": 1426, "height": 3092},
+          "screenArea": {"x": 83, "y": 83, "width": 1260, "height": 2796},
+          "radius": 181
+        },
+        "frame_size": {"width": 1426, "height": 3092}
+      }
+    }
+  },
+  "android-phone": {
+    "Pixel 8": {
+      "Hazel": {
+        "frame_png": "android-phone/Pixel 8/Hazel/frame.png",
+        "template": { /* ... */ },
+        "frame_size": {"width": 1234, "height": 2700}
+      }
+    }
+  }
+}
+```
+
+##### Example with curl
+
+```bash
+curl http://localhost:8000/list_devices | python3 -m json.tool
+```
+
+##### Example with Python requests
+
+```python
+import requests
+
+response = requests.get("http://localhost:8000/list_devices")
+devices = response.json()
+
+# List all iOS devices
+for device_type, variations in devices["iOS"].items():
+    print(f"\n{device_type}:")
+    for variation, data in variations.items():
+        size = data["frame_size"]
+        print(f"  - {variation}: {size['width']}×{size['height']}px")
+```
+
+##### Example with JavaScript (fetch)
+
+```javascript
+fetch('http://localhost:8000/list_devices')
+  .then(response => response.json())
+  .then(devices => {
+    // Build a device selector dropdown
+    const category = devices.iOS;
+    for (const [deviceType, variations] of Object.entries(category)) {
+      for (const [variation, data] of Object.entries(variations)) {
+        console.log(`${deviceType} - ${variation}: ${data.frame_size.width}×${data.frame_size.height}`);
+      }
+    }
+  });
+```
+
+---
+
+#### POST /apply_frame
 
 Apply a device frame to an uploaded screenshot.
 
