@@ -62,6 +62,28 @@ Interactive API documentation (Swagger UI): `http://localhost:8000/docs`
 
 ### API Endpoints
 
+#### GET /frames/{path}
+
+Access static device frame assets (PNG images) directly via HTTP.
+
+##### Path Parameters
+
+- `path`: Relative path to the frame file (e.g., `iOS/16 Plus/Teal/frame.png`)
+
+##### Examples
+
+```bash
+# Access a specific frame PNG
+curl https://device-frames.fly.dev/frames/iOS/16%20Plus/Teal/frame.png -o frame.png
+
+# Or for Android
+curl https://device-frames.fly.dev/frames/android-phone/Pixel%208%20Pro/Black/frame.png -o frame.png
+```
+
+Note: Spaces in URLs must be percent-encoded as `%20`.
+
+---
+
 #### GET /list_devices
 
 List all available device frames with their metadata and frame sizes.
@@ -98,7 +120,8 @@ Returns a nested JSON structure organizing devices by category, device type, and
 - `android-tablet` - Android tablets
 
 **Response Fields:**
-- `frame_png`: Relative path to the device frame PNG file
+- `frame_png`: URL path to access the device frame PNG file (e.g., `/frames/iOS/16 Plus/Teal/frame.png`)
+- `frame_png_path`: Relative file path within the device-frames-output directory
 - `template`: Complete template.json data including frameSize, screenArea, radius, etc.
 - `frame_size`: Quick access to frame dimensions (width × height in pixels)
 
@@ -109,7 +132,8 @@ Returns a nested JSON structure organizing devices by category, device type, and
   "iOS": {
     "16 Plus": {
       "Teal": {
-        "frame_png": "iOS/16 Plus/Teal/frame.png",
+        "frame_png": "/frames/iOS/16 Plus/Teal/frame.png",
+        "frame_png_path": "iOS/16 Plus/Teal/frame.png",
         "template": {
           "frameSize": {"width": 1366, "height": 2830},
           "screenArea": {"x": 83, "y": 83, "width": 1200, "height": 2664},
@@ -120,7 +144,8 @@ Returns a nested JSON structure organizing devices by category, device type, and
     },
     "16 Pro Max": {
       "Black Titanium": {
-        "frame_png": "iOS/16 Pro Max/Black Titanium/frame.png",
+        "frame_png": "/frames/iOS/16 Pro Max/Black Titanium/frame.png",
+        "frame_png_path": "iOS/16 Pro Max/Black Titanium/frame.png",
         "template": {
           "frameSize": {"width": 1426, "height": 3092},
           "screenArea": {"x": 83, "y": 83, "width": 1260, "height": 2796},
@@ -133,7 +158,8 @@ Returns a nested JSON structure organizing devices by category, device type, and
   "android-phone": {
     "Pixel 8": {
       "Hazel": {
-        "frame_png": "android-phone/Pixel 8/Hazel/frame.png",
+        "frame_png": "/frames/android-phone/Pixel 8/Hazel/frame.png",
+        "frame_png_path": "android-phone/Pixel 8/Hazel/frame.png",
         "template": { /* ... */ },
         "frame_size": {"width": 1234, "height": 2700}
       }
@@ -331,7 +357,6 @@ All powered by the same frame application engine.
 ## Limitations
 
 - **No URL support**: The API does not accept image URLs (SSRF prevention, latency control)
-- **No asset serving**: Frame/mask assets are not exposed via HTTP
 - **No authentication**: Add your own auth layer if needed
 - **Single image only**: No batch processing yet (coming soon)
 

@@ -159,7 +159,7 @@ async def list_devices():
         
         # Find frame.png
         frame_png_path = template_path.parent / "frame.png"
-        frame_png_relative = str(frame_png_path.relative_to(output_root)) if frame_png_path.exists() else None
+        frame_png_relative = str(frame_png_path.relative_to(output_root)).replace("\\", "/") if frame_png_path.exists() else None
         
         # Build nested structure
         if category not in result:
@@ -169,7 +169,8 @@ async def list_devices():
             result[category][device_type] = {}
         
         result[category][device_type][variation] = {
-            "frame_png": frame_png_relative,
+            "frame_png": f"/frames/{frame_png_relative}" if frame_png_relative else None,
+            "frame_png_path": frame_png_relative,  # Original relative path for reference
             "template": template,
             "frame_size": template.get("frameSize", {})
         }
