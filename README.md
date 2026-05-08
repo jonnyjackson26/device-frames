@@ -1,3 +1,9 @@
+This Repo has been archived and replaced with:
+https://github.com/jonnyjackson26/device-frames-api/
+https://github.com/jonnyjackson26/device-frames-core
+https://github.com/jonnyjackson26/device-frames-media
+
+
 # device-frames
 Apply a device frame to a screenshot. Create mockups easily.
 
